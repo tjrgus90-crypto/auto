@@ -1,4 +1,3 @@
-# 멜론 실시간 차트 순위와 좋아요 수(1,000개 단위)의 선형회귀 분석
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
