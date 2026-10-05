@@ -13,8 +13,8 @@ model = LinearRegression()
 model.fit(x, y)
 y_pred = model.predict(x)
 
-plt.scatter(x, y, color="blue")
-plt.plot(x, y_pred, color="red")
+plt.scatter(x, y, color="blue", label="Actual")
+plt.plot(x, y_pred, color="red", label="Linear Regression")
 for i, t in enumerate(titles):
     plt.annotate(t, (x[i, 0], y[i]), textcoords="offset points", xytext=(0, 7),
                  ha="center", fontsize=8)
@@ -24,5 +24,6 @@ plt.ylabel("Likes (x1,000)")
 plt.xticks(range(1, 11))
 plt.xlim(0.3, 10.7)
 plt.ylim(25, 170)
+plt.legend()
 plt.savefig("melon_regression.png")
 plt.show()
