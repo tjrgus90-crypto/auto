@@ -7,15 +7,13 @@
 4. 실제 값(파란 점)과 회귀선(붉은 선)을 그려 png로 저장
 
 실행 예:
+    # 아래 COLLECTED_* 에 기록한 수집 데이터로 분석 (제출한 그림 재현)
     python melon_like_regression.py
-    python melon_like_regression.py --output melon_regression.png
-    # 크롤링이 막힌 경우 직접 수집한 값으로 실행
-    python melon_like_regression.py --manual 168 150 ... --chart-time "2025.09.19 19:00"
+    # 실시간 차트를 다시 크롤링하여 분석
+    python melon_like_regression.py --crawl
 """
 
 import argparse
-import sys
-
 import numpy as np
 import matplotlib.pyplot as plt
 import requests
@@ -36,6 +34,20 @@ HEADERS = {
 }
 
 TOP_N = 10
+
+# 수집 데이터 (멜론 실시간 차트, 1~10위 좋아요 수를 1,000개 단위로 기록)
+#  1 퇴사할게여 (Narr. 기안84) - 소연     43,411
+#  2 LOVE ATTACK - RESCENE              154,214
+#  3 갑자기 - 아이오아이                  80,557
+#  4 Deja Vu - RESCENE                   60,254
+#  5 Pretty Girl - RESCENE               67,052
+#  6 REDRED - CORTIS                     91,641
+#  7 BAD - ATEEZ                         34,725
+#  8 만찬가 - 태연                        50,572
+#  9 It's Me - 아일릿                     60,063
+# 10 LEMONADE - aespa                    59,957
+COLLECTED_TIME = "2026.10.05 14:00"
+COLLECTED_LIKES = [43, 154, 80, 60, 67, 91, 34, 50, 60, 59]
 
 
 def fetch_chart(top_n=TOP_N):
@@ -101,8 +113,8 @@ def plot_result(x, y, y_pred, chart_time, output):
 def parse_args():
     parser = argparse.ArgumentParser(description="멜론 실시간 차트 순위-좋아요 수 선형회귀")
     parser.add_argument("--output", default="melon_regression.png", help="저장할 그림 파일 이름")
-    parser.add_argument("--manual", type=int, nargs=TOP_N, metavar="LIKES",
-                        help="크롤링 대신 1~10위 좋아요 수(1,000개 단위)를 직접 입력")
+    parser.add_argument("--crawl", action="store_true",
+                        help="기록된 데이터 대신 실시간 차트를 크롤링하여 사용")
     parser.add_argument("--chart-time", help='그래프 제목에 쓸 차트 일시 (예: "2025.09.19 19:00")')
     return parser.parse_args()
 
@@ -110,11 +122,9 @@ def parse_args():
 def main():
     args = parse_args()
 
-    if args.manual:
-        likes_k = args.manual
-        chart_time = args.chart_time
-        if chart_time is None:
-            sys.exit("--manual 사용 시 --chart-time 으로 차트 일시를 지정해야 합니다.")
+    if not args.crawl:
+        likes_k = COLLECTED_LIKES
+        chart_time = args.chart_time or COLLECTED_TIME
     else:
         songs, chart_time = fetch_chart()
         likes = fetch_likes([s["song_id"] for s in songs])
